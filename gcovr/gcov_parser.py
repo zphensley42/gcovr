@@ -54,9 +54,25 @@ from .utils import Logger
 
 _EXCLUDE_LINE_FLAG = "_EXCL_"
 _EXCLUDE_LINE_PATTERN = re.compile(r"([GL]COVR?)_EXCL_(LINE|START|STOP)")
+_EXCLUDE_LINE_PATTERN_OVERRIDE = Optional[Pattern]
 
 _C_STYLE_COMMENT_PATTERN = re.compile(r"/\*.*?\*/")
 _CPP_STYLE_COMMENT_PATTERN = re.compile(r"//.*?$")
+
+
+def override_excl_pattern(pattern: str):
+    global _EXCLUDE_LINE_PATTERN_OVERRIDE
+    _EXCLUDE_LINE_PATTERN_OVERRIDE = re.compile(f"({pattern})_EXCL_(LINE|START|STOP)")
+
+
+def _excl_pattern() -> Pattern[str]:
+    global _EXCLUDE_LINE_PATTERN
+    global _EXCLUDE_LINE_PATTERN_OVERRIDE
+
+    if _EXCLUDE_LINE_PATTERN_OVERRIDE is None:
+        return _EXCLUDE_LINE_PATTERN
+    else:
+        return _EXCLUDE_LINE_PATTERN_OVERRIDE
 
 
 def _line_pattern(pattern: str) -> Pattern[str]:
@@ -279,6 +295,7 @@ def parse_coverage(
     filename: str,
     logger: Logger,
     exclude_lines_by_pattern: Optional[str],
+    override_default_exclude_line_pattern: Optional[str],
     flags: ParserFlags,
 ) -> FileCoverage:
     """
@@ -304,6 +321,7 @@ def parse_coverage(
         is enabled.
     """
 
+    override_excl_pattern(override_default_exclude_line_pattern)
     context = _Context(flags, logger, filename)
 
     lines_with_errors: List[_LineWithError] = []
@@ -964,7 +982,7 @@ def _find_excluded_ranges(
             #
             # START flags are added to the exlusion stack
             # STOP flags remove a marker from the exclusion stack
-            for header, flag in _EXCLUDE_LINE_PATTERN.findall(code):
+            for header, flag in _excl_pattern().findall(code):
 
                 if flag == "LINE":
                     if exclusion_stack:

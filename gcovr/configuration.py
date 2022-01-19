@@ -1027,6 +1027,11 @@ GCOVR_CONFIG_OPTIONS = [
         type=int,
         default=1,
     ),
+    GcovrConfigOption(
+        "override_default_exclude_line_pattern", ["--override-default-exclude-line-pattern"],
+        help="Override regex used to determine which lines / markers are checked for exclusions",
+        type=str
+    ),
 ]
 
 

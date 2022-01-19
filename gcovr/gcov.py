@@ -25,7 +25,7 @@ import io
 from .utils import search_file, Logger, commonpath, realpath
 from .workers import locked_directory
 from .coverage import FileCoverage
-from .gcov_parser import parse_metadata, parse_coverage, ParserFlags
+from .gcov_parser import parse_metadata, parse_coverage, ParserFlags, override_excl_pattern
 
 output_re = re.compile(r"[Cc]reating [`'](.*)'$")
 source_re = re.compile(
@@ -148,6 +148,7 @@ def process_gcov_data(data_fname, covdata, source_fname, options, currdir=None):
         filename=key,
         logger=logger,
         exclude_lines_by_pattern=options.exclude_lines_by_pattern,
+        override_default_exclude_line_pattern=options.override_default_exclude_line_pattern,
         flags=parser_flags,
     )
     covdata.setdefault(key, FileCoverage(key)).update(coverage)
