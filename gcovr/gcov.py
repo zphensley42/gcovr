@@ -25,7 +25,7 @@ import io
 from .utils import search_file, Logger, commonpath, realpath
 from .workers import locked_directory
 from .coverage import FileCoverage
-from .gcov_parser import parse_metadata, parse_coverage, ParserFlags, override_excl_pattern
+from .gcov_parser import parse_metadata, parse_coverage, ParserFlags
 
 output_re = re.compile(r"[Cc]reating [`'](.*)'$")
 source_re = re.compile(
